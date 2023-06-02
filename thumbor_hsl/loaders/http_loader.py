@@ -17,11 +17,11 @@ def return_contents(response, url, context, req_start=None):
         size = f"{context.request.width}x{context.request.height}"
 
         context.metrics.timing(
-            f"original_image_with_size_fetch.fetch.{code}.{netloc}.{size}",
+            f"original_image_with_size.fetch.{code}.{netloc}.{size}",
             (finish - req_start).total_seconds() * 1000,
         )
         context.metrics.incr(
-            f"original_image_with_size_fetch.fetch.{code}.{netloc}.{size}",
+            f"original_image_with_size.fetch.{code}.{netloc}.{size}",
         )
 
     return http_loader.return_contents(response, url, context, req_start)
