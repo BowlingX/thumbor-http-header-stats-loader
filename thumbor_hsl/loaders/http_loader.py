@@ -34,8 +34,6 @@ def return_contents(response, url, context, req_start=None):
         else:
             headers = ".".join(str(value).replace(".", "_") for value in filtered_dict.values())
 
-        logger.warning(f"original_image_headers.fetch.{code}.{netloc}.{headers}")
-
         context.metrics.timing(
             f"original_image_headers.fetch.{code}.{netloc}.{headers}",
             (finish - req_start).total_seconds() * 1000,
