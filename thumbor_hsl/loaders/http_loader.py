@@ -2,10 +2,12 @@ import datetime
 from thumbor.loaders import http_loader
 from urllib.parse import urlparse
 from thumbor.utils import logger
+import re
 
 
 def return_contents(response, url, context, req_start=None):
     include_headers = context.config.HSL_INCLUDE_HEADERS
+    regex_match = context.config.HSL_REGEX_MATCH
 
     if include_headers is None:
         logger.warning(
@@ -26,7 +28,13 @@ def return_contents(response, url, context, req_start=None):
         code = response.code
 
         finish = datetime.datetime.now()
-        headers = ".".join(str(value).replace(".", "_") for value in filtered_dict.values())
+
+        if regex_match is not None:
+            headers = ".".join(re.search(regex_match, str(value)).group(0) for value in filtered_dict.values())
+        else:
+            headers = ".".join(str(value).replace(".", "_") for value in filtered_dict.values())
+
+        logger.warning(f"original_image_headers.fetch.{code}.{netloc}.{headers}")
 
         context.metrics.timing(
             f"original_image_headers.fetch.{code}.{netloc}.{headers}",
