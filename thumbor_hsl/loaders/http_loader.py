@@ -2,11 +2,11 @@ import datetime
 import re
 from thumbor.loaders import http_loader
 from urllib.parse import urlparse
+from thumbor.utils import logger
 
 
 def return_contents(response, url, context, req_start=None):
-    include_headers = context.config.HSL_INCLUDE_HEADERS
-    regex_match = context.config.HSL_REGEX_MATCH
+    regex_match = context.config.HSL_REGEX_MATCH_URL
 
     if req_start:
         res = urlparse(url)
@@ -15,25 +15,19 @@ def return_contents(response, url, context, req_start=None):
 
         has_width_and_height = bool(context.request.width) and bool(context.request.height)
 
-        if not has_width_and_height and include_headers is None:
+        if not has_width_and_height and regex_match is None:
             return http_loader.return_contents(response, url, context, req_start)
 
-        header_values = ""
-        if include_headers:
-            configured_headers = list(map(lambda header: header.lower(), include_headers.split(",")))
-            filtered_dict = {key: value for (key, value) in response.headers.items() if
-                             key.lower() in configured_headers}
-            if len(filtered_dict) != 0:
-                if regex_match is not None:
-                    header_values = ".".join(
-                        re.search(regex_match, str(value)).group(0) for value in filtered_dict.values())
-                else:
-                    header_values = ".".join(str(value).replace(".", "_") for value in filtered_dict.values())
+        parsed_match = ''
+
+        if regex_match:
+            parsed_match = re.search(regex_match, url)
+            parsed_match = parsed_match.group(1) if parsed_match and parsed_match.group(1) else ''
 
         finish = datetime.datetime.now()
 
-        extra = f"{context.request.width}x{context.request.height}{'.' if header_values else '.'}{header_values}" \
-            if has_width_and_height else f".{header_values}"
+        extra = f"{context.request.width}x{context.request.height}.{parsed_match}" \
+            if has_width_and_height else f".{parsed_match}"
 
         context.metrics.timing(
             f"original_image_with_size.fetch.{code}.{netloc}.{extra}",
