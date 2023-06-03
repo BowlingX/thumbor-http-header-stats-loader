@@ -2,7 +2,7 @@ import datetime
 import re
 from thumbor.loaders import http_loader
 from urllib.parse import urlparse
-from thumbor.utils import logger
+
 
 def return_contents(response, url, context, req_start=None):
     include_headers = context.config.HSL_INCLUDE_HEADERS
