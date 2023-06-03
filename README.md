@@ -22,4 +22,4 @@ For a given url, e.g. `https://my-image?someQuery=10` the result of `10` will be
 
 ## Install
 
-    pip install https://github.com/BowlingX/thumbor-http-header-stats-loader/archive/1.0.0.zip  
+    pip install thumbor_hsl
