@@ -19,28 +19,29 @@ def return_contents(response, url, context, req_start=None):
         if not has_width_and_height and include_headers is None:
             return http_loader.return_contents(response, url, context, req_start)
 
-        extra = ""
+        header_values = ""
         if include_headers:
             configured_headers = list(map(lambda header: header.lower(), include_headers.split(",")))
             filtered_dict = {key: value for (key, value) in response.headers.items() if
                              key.lower() in configured_headers}
             if len(filtered_dict) != 0:
                 if regex_match is not None:
-                    extra = ".".join(re.search(regex_match, str(value)).group(0) for value in filtered_dict.values())
+                    header_values = ".".join(
+                        re.search(regex_match, str(value)).group(0) for value in filtered_dict.values())
                 else:
-                    extra = ".".join(str(value).replace(".", "_") for value in filtered_dict.values())
+                    header_values = ".".join(str(value).replace(".", "_") for value in filtered_dict.values())
 
         finish = datetime.datetime.now()
 
-        size = f"{context.request.width}x{context.request.height}"
+        extra = f"{context.request.width}x{context.request.height}{'.' if header_values else ''}{header_values}" \
+            if has_width_and_height else header_values
 
-        logger.warn(f"original_image_with_size.fetch.{code}.{netloc}.{size}{'.' if extra else ''}{extra}")
         context.metrics.timing(
-            f"original_image_with_size.fetch.{code}.{netloc}.{size}{'.' if extra else ''}{extra}",
+            f"original_image_with_size.fetch.{code}.{netloc}.{extra}",
             (finish - req_start).total_seconds() * 1000,
         )
         context.metrics.incr(
-            f"original_image_with_size.fetch.{code}.{netloc}.{size}{'.' if extra else ''}{extra}",
+            f"original_image_with_size.fetch.{code}.{netloc}.{extra}",
         )
 
     return http_loader.return_contents(response, url, context, req_start)
