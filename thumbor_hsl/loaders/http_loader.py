@@ -4,7 +4,6 @@ from thumbor.loaders import http_loader
 from urllib.parse import urlparse
 from thumbor.utils import logger
 
-
 def return_contents(response, url, context, req_start=None):
     include_headers = context.config.HSL_INCLUDE_HEADERS
     regex_match = context.config.HSL_REGEX_MATCH
@@ -33,8 +32,8 @@ def return_contents(response, url, context, req_start=None):
 
         finish = datetime.datetime.now()
 
-        extra = f"{context.request.width}x{context.request.height}{'.' if header_values else ''}{header_values}" \
-            if has_width_and_height else header_values
+        extra = f"{context.request.width}x{context.request.height}{'.' if header_values else '.'}{header_values}" \
+            if has_width_and_height else f".{header_values}"
 
         context.metrics.timing(
             f"original_image_with_size.fetch.{code}.{netloc}.{extra}",
