@@ -1,4 +1,4 @@
-thumbor-http-size-stats-loader
+thumbor-http-stats-loader
 --------------------------------
 
 An extended `http` loader for thumbor which introduces an additional statd
