@@ -2,11 +2,13 @@ import datetime
 import re
 from thumbor.loaders import http_loader
 from urllib.parse import urlparse
-from thumbor.utils import logger
 
 
 def return_contents(response, url, context, req_start=None):
     regex_match = context.config.HSL_REGEX_MATCH_URL
+
+    def callback():
+        return http_loader.return_contents(response, url, context, req_start)
 
     if req_start:
         res = urlparse(url)
@@ -16,7 +18,7 @@ def return_contents(response, url, context, req_start=None):
         has_width_and_height = bool(context.request.width) and bool(context.request.height)
 
         if not has_width_and_height and regex_match is None:
-            return http_loader.return_contents(response, url, context, req_start)
+            return callback()
 
         parsed_match = ''
 
@@ -26,6 +28,7 @@ def return_contents(response, url, context, req_start=None):
 
         finish = datetime.datetime.now()
 
+        # make sure to have placeholders in case the values are empty. This way we can parse it easier later
         extra = f"{context.request.width}x{context.request.height}.{parsed_match}" \
             if has_width_and_height else f".{parsed_match}"
 
@@ -37,7 +40,7 @@ def return_contents(response, url, context, req_start=None):
             f"original_image_with_size.fetch.{code}.{netloc}.{extra}",
         )
 
-    return http_loader.return_contents(response, url, context, req_start)
+    return callback()
 
 
 async def load(context, url):
